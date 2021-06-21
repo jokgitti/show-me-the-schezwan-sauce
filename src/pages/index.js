@@ -1,17 +1,116 @@
 import { gql } from "@apollo/client";
+import { useEffect, useState } from "react";
 import client from '../lib/apollo';
 
-export default function Home({locations}) {
+export default function Home({locations, dimensions, types}) {
+
+  const [dimension, setDimension] = useState("");
+  const [type, setType] = useState("");
+  const [name, setName] = useState("");
+  const [visibleLocations, setVisibleLocations] = useState(locations);
+
+  const onDimensionChange = (e) => {
+    e.preventDefault();
+    setDimension(e.target.value);
+  }
+
+  const onTypeChange = (e) => {
+    e.preventDefault();
+    setType(e.target.value);
+  }
+
+  const onNameChange = (e) => {
+    e.preventDefault();
+    setName(e.target.value);
+  }
+
+  useEffect(() => {
+    const filterCriteria = [];
+    if(type) {
+      filterCriteria.push(value => value.type === type);
+    }
+    if(dimension) {
+      filterCriteria.push(value => value.dimension === dimension);
+    }
+    if(name) {
+      filterCriteria.push(value => value.name.toLowerCase().includes(name.toLowerCase()))
+    }
+    
+    if(filterCriteria.length === 0) {
+      setVisibleLocations(locations);
+    } else {
+      const filteredLocations = locations.filter(location => {
+        return filterCriteria.every(criteria => criteria(location));
+      });
+  
+      setVisibleLocations(filteredLocations);
+    }
+  }, [locations, dimension, type, name])
+
+
   return (
    <main>
      <h1>Hello world</h1>
-     {locations.map(({id, name, dimension}) => 
+     <form>
+       <label>
+         Name:
+         <input
+          type="text"
+          placeholder="Type a name to filter" 
+          value={name}
+          onChange={onNameChange}
+        />
+       </label>
+       <label>
+        Dimensions:
+        <select 
+          value={dimension} 
+          onChange={onDimensionChange}
+        >
+           <option 
+            value="" 
+            selected
+          >
+            All dimensions
+          </option>
+           {dimensions.map(dimension => 
+              <option 
+                key={dimension} 
+                value={dimension}>
+                  {dimension}
+                </option>
+            )}
+         </select>
+       </label>
+       <label>
+         Types:
+         <select value={type} onChange={onTypeChange}>
+           <option 
+            value="" 
+            selected
+          >
+            All types
+          </option>
+           {types.map(type => 
+              <option 
+                key={type} 
+                value={type}>
+                  {type}
+                </option>
+            )}
+         </select>
+       </label>
+     </form>
+     {visibleLocations.map(({id, name, dimension, type}) => 
        <div key={id}>
          <h2>
            {name}
          </h2>
          <p>
            {dimension}
+         </p>
+         <p>
+           {type}
          </p>
        </div>
      )}
@@ -61,8 +160,8 @@ export const getServerSideProps = async (context) => {
     return {
       props: {
         locations,
-        types: [...types],
-        dimensions: [...dimensions]
+        types: [...types].sort((a, b) => a.localeCompare(b)),
+        dimensions: [...dimensions].sort((a, b) => a.localeCompare(b)),
       }
     };
     
