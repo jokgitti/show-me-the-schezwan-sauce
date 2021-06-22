@@ -3,6 +3,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import PropTypes from 'prop-types';
 import client from '../../lib/apollo';
+import getAllLocations from '../../lib/apollo/getAllLocations';
 
 export default function Location({
     location, residents, alive, dead, guests, robots, humans, aliens,
@@ -107,38 +108,8 @@ const getResidentsQuery = (residentsIds) => `query {
     }
 }`;
 
-const getLocationsQuery = (page) => `query {
-    locations(page:${page}){
-      info{
-        count,
-        pages,
-        next
-      }
-      results{
-        id,
-        name,
-        dimension,
-        type
-      }
-    }
-  }`;
-
 export const getStaticPaths = async () => {
-    const firstPage = await client.query({
-        query: gql`${getLocationsQuery(1)}`,
-    });
-
-    const remaingPages = await Promise
-        .all(new Array(firstPage.data.locations.info.pages - 1)
-            .fill(undefined)
-            .map((_, i) => client.query({
-                query: gql`${getLocationsQuery(2 + i)}`,
-            })));
-
-    const locations = [
-        firstPage,
-        ...remaingPages,
-    ].reduce((_locations, page) => [..._locations, ...page.data.locations.results], []);
+    const locations = await getAllLocations();
 
     return {
         paths: locations.map((location) => ({ params: { locationId: location.id } })),
