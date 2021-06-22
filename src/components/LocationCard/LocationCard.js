@@ -14,7 +14,7 @@ const LocationCard = ({
 
     return (
         <div
-            className="mb-4 flex flex-col border p-4 rounded-md md:mb-0 hover:border-blue-500 transition-colors"
+            className="mb-4 bg-white shadow-md flex flex-col border border-white p-4 rounded-md md:mb-0 hover:border-purple-600 transform hover:translate-y-1 transition-colors transition-transform"
             onClick={onClick}
             role="button"
             tabIndex="0"
