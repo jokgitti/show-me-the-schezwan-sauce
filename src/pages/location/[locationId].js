@@ -1,39 +1,126 @@
 import { gql } from '@apollo/client';
+import Image from 'next/image';
+import Link from 'next/link';
+import PropTypes from 'prop-types';
 import client from '../../lib/apollo';
 
-export default function Location() {
+export default function Location({
+    location, residents, alive, dead, guests, robots, humans, aliens,
+}) {
     return (
-        <h1>
-            hello world
-        </h1>
+        <main>
+            <Link href="/">Back to locations</Link>
+            <h1>
+                {location.name}
+            </h1>
+            <ul>
+                <li>
+                    {`Alive residents: ${alive}`}
+                </li>
+                <li>
+                    {`Dead residents: ${dead}`}
+                </li>
+                <li>
+                    {`Guest residents: ${guests}`}
+                </li>
+                <li>
+                    {`Human residents: ${humans}`}
+                </li>
+                <li>
+                    {`Robot residents: ${robots}`}
+                </li>
+                <li>
+                    {`Alien residents: ${aliens}`}
+                </li>
+            </ul>
+            <ul>
+                {residents.map((resident) => (
+                    <li key={resident.id}>
+                        <Image
+                            src={resident.image}
+                            alt={resident.name}
+                            width={150}
+                            height={150}
+                        />
+                        <h3>{resident.name}</h3>
+                        <p>{resident.status}</p>
+                        <p>{resident.species}</p>
+                    </li>
+                ))}
+            </ul>
+        </main>
     );
 }
 
+Location.propTypes = {
+    location: PropTypes.shape({
+        id: PropTypes.string,
+        name: PropTypes.string,
+        residents: PropTypes.arrayOf(PropTypes.shape({ id: PropTypes.string })),
+    }).isRequired,
+    residents: PropTypes.arrayOf(PropTypes.shape({
+        id: PropTypes.string,
+        name: PropTypes.string,
+        status: PropTypes.oneOf(['Dead', 'Alive', 'unknown']),
+        species: PropTypes.string,
+        gender: PropTypes.string,
+        image: PropTypes.string,
+        origin: PropTypes.shape({
+            id: PropTypes.string,
+        }),
+    })),
+    alive: PropTypes.number,
+    dead: PropTypes.number,
+    guests: PropTypes.number,
+    robots: PropTypes.number,
+    humans: PropTypes.number,
+    aliens: PropTypes.number,
+};
+
+Location.defaultProps = {
+    residents: [],
+    alive: 0,
+    dead: 0,
+    guests: 0,
+    robots: 0,
+    humans: 0,
+    aliens: 0,
+};
+
 const getLocationQuery = (locationId) => `query {
-  location(id : ${locationId}){    
-      id,
-      name,
-      residents { id }    
-  }
+    location(id : ${locationId}){    
+        id,
+        name,
+        residents { id }    
+    }
 }`;
 
 const getResidentsQuery = (residentsIds) => `query {
     charactersByIds(ids: [${residentsIds}]) {
-      name,
-      status,
-      species,
-      gender,
-      image
-      origin { name },
+        id,
+        name,
+        status,
+        species,
+        gender,
+        image
+        origin { id },
     }
-  }`;
+}`;
 
 export const getServerSideProps = async (context) => {
     try {
+        const { params: { locationId } } = context;
         const { data: { location } } = await client.query({
-            query: gql`${getLocationQuery(context.params.locationId)}`,
+            query: gql`${getLocationQuery(locationId)}`,
         });
         const residentsIds = location.residents.map((resident) => Number(resident.id));
+        if (residentsIds.length === 0) {
+            return {
+                props: {
+                    location,
+                },
+            };
+        }
         const { data: { charactersByIds: residents } } = await client.query({
             query: gql`${getResidentsQuery(residentsIds)}`,
         });
@@ -54,6 +141,9 @@ export const getServerSideProps = async (context) => {
             }
             if (resident.species === 'Alien') {
                 newStats.aliens += 1;
+            }
+            if (resident.origin.id !== locationId) {
+                newStats.guests += 1;
             }
             return newStats;
         }, {
