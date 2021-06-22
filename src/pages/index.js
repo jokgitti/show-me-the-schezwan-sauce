@@ -1,5 +1,5 @@
-import Link from 'next/link';
 import { useEffect, useState } from 'react';
+import LocationCard from '../components/LocationCard';
 import getAllLocations from '../lib/apollo/getAllLocations';
 
 export default function Home({ locations, dimensions, types }) {
@@ -47,7 +47,7 @@ export default function Home({ locations, dimensions, types }) {
     }, [locations, dimension, type, name]);
 
     return (
-        <main className="mx-24">
+        <main className="container mx-auto px-4 pb-8">
             <h1>Hello world</h1>
             <form>
                 <label htmlFor="name">
@@ -101,21 +101,17 @@ export default function Home({ locations, dimensions, types }) {
                     </select>
                 </label>
             </form>
-            {visibleLocations.map((location) => (
-                <div key={location.id}>
-                    <h2>
-                        <Link href={`/location/${location.id}`}>
-                            {location.name}
-                        </Link>
-                    </h2>
-                    <p>
-                        {location.dimension}
-                    </p>
-                    <p>
-                        {location.type}
-                    </p>
-                </div>
-            ))}
+            <div className="flex flex-col  md:grid md:grid-cols-3 md:gap-4">
+                {visibleLocations.map((location) => (
+                    <LocationCard
+                        key={location.id}
+                        id={location.id}
+                        name={location.name}
+                        dimension={location.dimension}
+                        type={location.type}
+                    />
+                ))}
+            </div>
         </main>
     );
 }
