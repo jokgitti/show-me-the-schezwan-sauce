@@ -47,7 +47,7 @@ export default function Home({ locations, dimensions, types }) {
     }, [locations, dimension, type, name]);
 
     return (
-        <main>
+        <main className="mx-24">
             <h1>Hello world</h1>
             <form>
                 <label htmlFor="name">
