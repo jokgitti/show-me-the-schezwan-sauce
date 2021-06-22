@@ -68,10 +68,7 @@ export default function Home({ locations, dimensions, types }) {
                         value={dimension}
                         onChange={onDimensionChange}
                     >
-                        <option
-                            value=""
-                            selected
-                        >
+                        <option value="">
                             All dimensions
                         </option>
                         {dimensions.map((_dimension) => (
@@ -91,10 +88,7 @@ export default function Home({ locations, dimensions, types }) {
                         value={type}
                         onChange={onTypeChange}
                     >
-                        <option
-                            value=""
-                            selected
-                        >
+                        <option value="">
                             All types
                         </option>
                         {types.map((_type) => (
