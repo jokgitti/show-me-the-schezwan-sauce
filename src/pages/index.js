@@ -137,7 +137,7 @@ const getLocationsQuery = (page) => `query {
   }
 }`;
 
-export const getServerSideProps = async () => {
+export const getStaticProps = async () => {
     try {
         const firstPage = await client.query({
             query: gql`${getLocationsQuery(1)}`,
@@ -163,6 +163,7 @@ export const getServerSideProps = async () => {
                 locations,
                 types: [...types].sort((a, b) => a.localeCompare(b)),
                 dimensions: [...dimensions].sort((a, b) => a.localeCompare(b)),
+                revalidate: 60 * 60 * 24,
             },
         };
     } catch (error) {

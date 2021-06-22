@@ -107,7 +107,46 @@ const getResidentsQuery = (residentsIds) => `query {
     }
 }`;
 
-export const getServerSideProps = async (context) => {
+const getLocationsQuery = (page) => `query {
+    locations(page:${page}){
+      info{
+        count,
+        pages,
+        next
+      }
+      results{
+        id,
+        name,
+        dimension,
+        type
+      }
+    }
+  }`;
+
+export const getStaticPaths = async () => {
+    const firstPage = await client.query({
+        query: gql`${getLocationsQuery(1)}`,
+    });
+
+    const remaingPages = await Promise
+        .all(new Array(firstPage.data.locations.info.pages - 1)
+            .fill(undefined)
+            .map((_, i) => client.query({
+                query: gql`${getLocationsQuery(2 + i)}`,
+            })));
+
+    const locations = [
+        firstPage,
+        ...remaingPages,
+    ].reduce((_locations, page) => [..._locations, ...page.data.locations.results], []);
+
+    return {
+        paths: locations.map((location) => ({ params: { locationId: location.id } })),
+        fallback: false,
+    };
+};
+
+export const getStaticProps = async (context) => {
     try {
         const { params: { locationId } } = context;
         const { data: { location } } = await client.query({
@@ -160,6 +199,7 @@ export const getServerSideProps = async (context) => {
                 location,
                 residents,
                 ...residentsStats,
+                revalidate: 60 * 60 * 24,
             },
         };
     } catch (error) {
