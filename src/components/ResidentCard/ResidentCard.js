@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 
 const ResidentCard = ({
     name, image, gender, status, species,
-}) => {
+}) => (
     <div
         className="mb-8 bg-white shadow-md flex flex-col items-center border border-white p-4 rounded-md md:mb-0"
     >
@@ -32,9 +32,8 @@ const ResidentCard = ({
             {' '}
             {species}
         </p>
-
-    </div>;
-};
+    </div>
+);
 ResidentCard.propTypes = {
     image: PropTypes.string.isRequired,
     name: PropTypes.string.isRequired,
