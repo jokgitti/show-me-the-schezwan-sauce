@@ -47,12 +47,19 @@ export default function Home({ locations, dimensions, types }) {
     }, [locations, dimension, type, name]);
 
     return (
-        <main className="container mx-auto px-4 pb-8">
-            <h1>Hello world</h1>
-            <form>
-                <label htmlFor="name">
+        <>
+            <h1 className="font-bold text-5xl mx-auto text-center mb-16 max-w-lg text-white opacity-90">
+                Show me the sauce
+                <span className="text-xl block">(the schezwan sauce)</span>
+            </h1>
+            <form className="flex flex-col lg:flex-row justify-between mb-8">
+                <label
+                    className="flex flex-col w-full font-bold text-white text-opacity-80 lg:max-w-xs"
+                    htmlFor="name"
+                >
                     Name:
                     <input
+                        className="px-4 py-2 rounded-md mt-2 text-black"
                         id="name"
                         type="text"
                         placeholder="Type a name to filter"
@@ -60,9 +67,13 @@ export default function Home({ locations, dimensions, types }) {
                         onChange={onNameChange}
                     />
                 </label>
-                <label htmlFor="dimension">
+                <label
+                    className="flex flex-col w-full font-bold text-white text-opacity-80 lg:max-w-xs"
+                    htmlFor="dimension"
+                >
                     Dimensions:
                     <select
+                        className="px-4 py-2 rounded-md mt-2 text-black h-10"
                         id="dimension"
                         value={dimension}
                         onChange={onDimensionChange}
@@ -80,9 +91,13 @@ export default function Home({ locations, dimensions, types }) {
                         ))}
                     </select>
                 </label>
-                <label htmlFor="type">
+                <label
+                    className="flex flex-col w-full font-bold text-white text-opacity-80 lg:max-w-xs"
+                    htmlFor="type"
+                >
                     Types:
                     <select
+                        className="px-4 py-2 rounded-md mt-2 text-black h-10"
                         id="type"
                         value={type}
                         onChange={onTypeChange}
@@ -101,7 +116,12 @@ export default function Home({ locations, dimensions, types }) {
                     </select>
                 </label>
             </form>
-            <div className="flex flex-col  md:grid md:grid-cols-3 md:gap-4">
+            {visibleLocations.length === 0 && (
+                <h2 className="font-bold text-center mt-16 text-3xl text-white text-opacity-90">
+                    Nothing to see here 🙈
+                </h2>
+            )}
+            <div className="flex flex-col  md:grid md:grid-cols-2 lg:grid-cols-3 md:gap-4 lg:gap-8 xl:gap-12">
                 {visibleLocations.map((location) => (
                     <LocationCard
                         key={location.id}
@@ -112,7 +132,7 @@ export default function Home({ locations, dimensions, types }) {
                     />
                 ))}
             </div>
-        </main>
+        </>
     );
 }
 
